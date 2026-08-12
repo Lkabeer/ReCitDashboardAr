@@ -478,20 +478,20 @@
             const churn = document.getElementById('kpiChurn');
 
             if (range === 'today') {
-                gmv.innerText = '6,420 <span class="sar">$</span>';
-                aov.innerText = '31.20 <span class="sar">$</span>';
+                gmv.innerHTML = '6,420 <span class="sar">$</span>';
+                aov.innerHTML = '31.20 <span class="sar">$</span>';
                 penetration.innerText = '40.2%';
                 churn.innerText = '12';
                 salesChart.data.datasets[0].data = [800, 1500, 2200, 1800, 2400, 2100, 1100, 400];
             } else if (range === 'week') {
-                gmv.innerText = '48,250 <span class="sar">$</span>';
-                aov.innerText = '34.50 <span class="sar">$</span>';
+                gmv.innerHTML = '48,250 <span class="sar">$</span>';
+                aov.innerHTML = '34.50 <span class="sar">$</span>';
                 penetration.innerText = '42.8%';
                 churn.innerText = '128';
                 salesChart.data.datasets[0].data = [1200, 3400, 7800, 6200, 8900, 9400, 6100, 3200];
             } else if (range === 'month') {
-                gmv.innerText = '194,100 <span class="sar">$</span>';
-                aov.innerText = '36.10 <span class="sar">$</span>';
+                gmv.innerHTML = '194,100 <span class="sar">$</span>';
+                aov.innerHTML = '36.10 <span class="sar">$</span>';
                 penetration.innerText = '45.4%';
                 churn.innerText = '412';
                 salesChart.data.datasets[0].data = [4500, 12000, 24000, 21000, 31000, 34000, 22000, 11000];
