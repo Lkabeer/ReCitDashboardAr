@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'Arshid';
+    src: url('fonts/Arshid.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.sar {
+    font-family: 'Arshid', sans-serif;
+}

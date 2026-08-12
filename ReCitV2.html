@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReCit - منصة التجار </title>
+    <!-- Tailwind CSS with RTL support & Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        @font-face {
+            font-family: 'Arshid';
+            src: url('https://your-web-link/Arshid.otf') format('opentype');
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between border-l border-slate-800">
+        <div>
+            <div class="p-6 flex items-center space-x-3 space-x-reverse border-b border-slate-800">
+                <div class="bg-indigo-600 text-white p-2 rounded-xl font-bold text-lg tracking-wider">Re</div>
+                <span class="text-xl font-bold text-white tracking-tight">ReCit<span
+                        class="text-indigo-400">.</span></span>
+            </div>
+            <nav class="p-4 space-y-1">
+                <button onclick="switchPage('overview', this)"
+                    class="w-full flex items-center space-x-3 space-x-reverse px-4 py-3 bg-indigo-600 text-white rounded-xl font-medium transition nav-btn"><i
+                        class="fa-solid fa-chart-pie w-5"></i><span>نظرة عامة</span></button>
+                <button onclick="switchPage('transactions', this)"
+                    class="w-full flex items-center space-x-3 space-x-reverse px-4 py-3 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition nav-btn"><i
+                        class="fa-solid fa-receipt w-5"></i><span>المعاملات</span></button>
+                <button onclick="switchPage('segments', this)"
+                    class="w-full flex items-center space-x-3 space-x-reverse px-4 py-3 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition nav-btn"><i
+                        class="fa-solid fa-users w-5"></i><span>شرائح العملاء</span></button>
+                <button onclick="switchPage('recommendations', this)"
+                    class="w-full flex items-center space-x-3 space-x-reverse px-4 py-3 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition nav-btn"><i
+                        class="fa-solid fa-brain w-5"></i><span>توصيات الذكاء الاصطناعي</span></button>
+                <button onclick="switchPage('integrations', this)"
+                    class="w-full flex items-center space-x-3 space-x-reverse px-4 py-3 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition nav-btn"><i
+                        class="fa-solid fa-gear w-5"></i><span>ربط أنظمة النقاط (POS)</span></button>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center space-x-3 space-x-reverse px-4 py-2">
+                <div class="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">أص
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-white">أحمد صادق</p>
+                    <p class="text-xs text-slate-400">شريك تجاري</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+
+        <!-- TOP HEADER -->
+        <header
+            class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+            <div>
+                <h1 id="pageTitle" class="text-xl font-bold text-slate-900">نظرة عامة</h1>
+                <p id="pageSubtitle" class="text-xs text-slate-500">تحليلات السلوك والرؤى التنبؤية في الوقت الفعلي</p>
+            </div>
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <select id="timeRange" onchange="updateDashboardData()"
+                    class="bg-slate-100 border border-slate-300 text-slate-700 text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="today">اليوم</option>
+                    <option value="week" selected>آخر 7 أيام</option>
+                    <option value="month">آخر 30 يوماً</option>
+                </select>
+                <button class="relative bg-slate-100 p-2 rounded-lg text-slate-600 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="absolute top-1 left-1 w-2 h-2 bg-rose-500 rounded-full"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTAINER FOR DYNAMIC PAGES -->
+        <div class="p-8 space-y-8 max-w-7xl w-full mx-auto">
+
+            <!-- PAGE 1: OVERVIEW -->
+            <div id="page-overview" class="page-content active space-y-8">
+                <!-- KPI METRICS GRID -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">إجمالي الإيرادات
+                                (GMV)</p>
+                            <h3 id="kpiGmv" class="text-2xl font-bold text-slate-900 mt-1">48,250 <span
+                                    class="sar">$</span></h3>
+                            <span class="text-xs font-medium text-emerald-600 mt-1 inline-block"><i
+                                    class="fa-solid fa-arrow-up"></i> +12.4% مقارنة بالفترة السابقة</span>
+                        </div>
+                        <div
+                            class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                            <!-- <i class="fa-solid fa-dollar-sign"></i> -->
+                            <span class="sar">$</span>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">متوسط قيمة الطلب
+                                (AOV)</p>
+                            <h3 id="kpiAov" class="text-2xl font-bold text-slate-900 mt-1">34.50 <span
+                                    class="sar">$</span></h3>
+                            <span class="text-xs font-medium text-emerald-600 mt-1 inline-block"><i
+                                    class="fa-solid fa-arrow-up"></i> +4.1% مقارنة بالفترة السابقة</span>
+                        </div>
+                        <div
+                            class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">معدل انتشار السلة
+                            </p>
+                            <h3 id="kpiPenetration" class="text-2xl font-bold text-slate-900 mt-1">42.8%</h3>
+                            <span class="text-xs font-medium text-rose-500 mt-1 inline-block"><i
+                                    class="fa-solid fa-arrow-down"></i> -1.2% مقارنة بالفترة السابقة</span>
+                        </div>
+                        <div
+                            class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">عملاء معرضون للخطر
+                            </p>
+                            <h3 id="kpiChurn" class="text-2xl font-bold text-slate-900 mt-1">128</h3>
+                            <span class="text-xs font-medium text-emerald-600 mt-1 inline-block"><i
+                                    class="fa-solid fa-arrow-down"></i> -8 عملاء تم استعادتهم</span>
+                        </div>
+                        <div
+                            class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHARTS SECTION -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-base font-bold text-slate-900">الإيرادات وحجم المشتريات الزمنية</h2>
+                            <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-md">تحليل بالساعة</span>
+                        </div>
+                        <div class="h-72"><canvas id="salesChart"></canvas></div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900 mb-2">توافق سلة المشتريات</h2>
+                            <p class="text-xs text-slate-500 mb-4">أكثر المنتجات طلباً معاً من خلال تحليل الإيصالات.</p>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-xs font-semibold mb-1"><span>إسبريسو +
+                                            كرواسون</span><span class="text-indigo-600">توافق 68%</span></div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-indigo-600 h-full rounded-full" style="width: 68%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-semibold mb-1"><span>برجر + مشروب
+                                            غازي</span><span class="text-indigo-600">توافق 54%</span></div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-indigo-600 h-full rounded-full" style="width: 54%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-semibold mb-1"><span>قهوة +
+                                            حلي</span><span class="text-indigo-600">توافق 39%</span></div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-indigo-600 h-full rounded-full" style="width: 39%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="switchPage('recommendations', document.querySelectorAll('.nav-btn')[3])"
+                            class="w-full mt-6 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2.5 rounded-xl transition">عرض
+                            جميع التوصيات</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 2: TRANSACTIONS -->
+            <div id="page-transactions" class="page-content space-y-6">
+                <div
+                    class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">سجل المعاملات والإيصالات الرقمية</h2>
+                        <p class="text-xs text-slate-500">تم جلبها عبر تكامل نظام نقاط البيع (POS) و ريسيت
+                            (NFC)</p>
+                    </div>
+                    <div class="flex space-x-3 space-x-reverse">
+                        <input type="text" placeholder="بحث برقم الإيصال أو العميل..."
+                            class="bg-slate-100 border border-slate-300 text-sm px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button
+                            class="bg-indigo-600 text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-indigo-500 transition">تصدير
+                            البيانات</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr
+                                class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
+                                <th class="p-4">رقم الإيصال</th>
+                                <th class="p-4">العميل</th>
+                                <th class="p-4">الفرع</th>
+                                <th class="p-4">المبلغ الإجمالي</th>
+                                <th class="p-4">الحالة</th>
+                                <th class="p-4">الوقت</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-4 font-semibold text-indigo-600">#REC-8492</td>
+                                <td class="p-4">محمد العمري</td>
+                                <td class="p-4">فرع الرياض الرئيسي</td>
+                                <td class="p-4 font-bold">45.00 <span class="sar">$</span></td>
+                                <td class="p-4"><span
+                                        class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full text-xs font-semibold">مكتمل</span>
+                                </td>
+                                <td class="p-4 text-slate-400">منذ 5 دقائق</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-4 font-semibold text-indigo-600">#REC-8491</td>
+                                <td class="p-4">سارة خالد</td>
+                                <td class="p-4">فرع جدة التحلية</td>
+                                <td class="p-4 font-bold">120.50 <span class="sar">$</span></td>
+                                <td class="p-4"><span
+                                        class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full text-xs font-semibold">مكتمل</span>
+                                </td>
+                                <td class="p-4 text-slate-400">منذ 14 دقيقة</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-4 font-semibold text-indigo-600">#REC-8490</td>
+                                <td class="p-4">خالد بن سلطان</td>
+                                <td class="p-4">فرع الرياض الرئيسي</td>
+                                <td class="p-4 font-bold">18.25 <span class="sar">$</span></td>
+                                <td class="p-4"><span
+                                        class="bg-amber-50 text-amber-600 px-2 py-1 rounded-full text-xs font-semibold">معلق
+                                        عبر OCR</span></td>
+                                <td class="p-4 text-slate-400">منذ 25 دقيقة</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PAGE 3: SEGMENTS -->
+            <div id="page-segments" class="page-content space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-t-4 border-t-indigo-600">
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">شريحة VIP</span>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-2">412 عميلاً</h3>
+                        <p class="text-xs text-slate-500 mt-1">يمثلون 58% من إجمالي الإيرادات الشهرية.</p>
+                        <button
+                            class="mt-6 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold text-xs py-2.5 rounded-xl transition">عرض
+                            قائمة VIP</button>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-t-4 border-t-amber-500">
+                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider">معرضون للخطر
+                            (At-Risk)</span>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-2">128 عميلاً</h3>
+                        <p class="text-xs text-slate-500 mt-1">تجاوزوا دورة الشراء العادية بأكثر من 50%.</p>
+                        <button
+                            class="mt-6 w-full bg-amber-50 hover:bg-amber-100 text-amber-600 font-semibold text-xs py-2.5 rounded-xl transition">إرسال
+                            قسائم استعادة</button>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-t-4 border-t-emerald-500">
+                        <span class="text-xs font-bold text-emerald-500 uppercase tracking-wider">عملاء جُدد</span>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-2">89 عميلاً</h3>
+                        <p class="text-xs text-slate-500 mt-1">أتموا أول عملية شراء خلال الأسبوع الماضي.</p>
+                        <button
+                            class="mt-6 w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-semibold text-xs py-2.5 rounded-xl transition">حملة
+                            ترحيبية</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 4: RECOMMENDATIONS -->
+            <div id="page-recommendations" class="page-content space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div
+                        class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2 space-x-reverse text-indigo-400 mb-2"><i
+                                    class="fa-solid fa-wand-magic-sparkles"></i><span
+                                    class="text-xs font-bold uppercase tracking-wider">محرك توصيات الذكاء
+                                    الاصطناعي</span></div>
+                            <h3 class="text-lg font-bold">إطلاق عرض وجبة الصباح المجمعة</h3>
+                            <p class="text-slate-300 text-sm mt-2">تظهر البيانات أن 35% من مشتري القهوة الصباحية لا
+                                يشترون وجبات خفيفة. تقديم عرض مؤقت بين الساعة 7 و 9 صباحاً يمكن أن يرفع متوسط قيمة الطلب
+                                (AOV) بنسبة مقدرة بـ 14%.</p>
+                        </div>
+                        <div class="mt-6 flex space-x-3 space-x-reverse">
+                            <button onclick="alert('تم تفعيل الحملة بنجاح وإرسال الإشعارات!')"
+                                class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition">تفعيل
+                                العرض</button>
+                            <button
+                                class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-4 py-2.5 rounded-xl transition">إخفاء</button>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2 space-x-reverse text-rose-500 mb-2"><i
+                                    class="fa-solid fa-triangle-exclamation"></i><span
+                                    class="text-xs font-bold uppercase tracking-wider">تنبيه تحفيز الاحتفاظ
+                                    بالعملاء</span></div>
+                            <h3 class="text-lg font-bold text-slate-900">120 عميلاً مميزاً غير متفاعلين</h3>
+                            <p class="text-slate-500 text-sm mt-2">لقد تجاوز هؤلاء العملاء دورة الشراء العادية بأكثر من
+                                50%. تم تجهيز قسائم إيصالات رقمية تلقائية لاستعادتهم.</p>
+                        </div>
+                        <div class="mt-6 flex space-x-3 space-x-reverse">
+                            <button onclick="alert('تم إطلاق حملة اشتياق بنجاح!')"
+                                class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition">إطلاق
+                                حملة "اشتياق"</button>
+                            <button
+                                class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition">فحص
+                                القائمة</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 5: INTEGRATIONS -->
+            <div id="page-integrations" class="page-content space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-slate-900 mb-2">إدارة أنظمة نقاط البيع (POS) والتكامل</h2>
+                    <p class="text-xs text-slate-500 mb-6">اربط أنظمة الكاشير الخاصة بك لجمع بيانات الإيصالات وتحليل
+                        السلوك لحظياً.</p>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 border border-slate-200 rounded-xl">
+                            <div class="flex items-center space-x-4 space-x-reverse">
+                                <div
+                                    class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-cash-register"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">Foodics POS Integration</h4>
+                                    <p class="text-xs text-slate-400">متصل وجاهز لمزامنة الفواتير</p>
+                                </div>
+                            </div>
+                            <span
+                                class="bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 rounded-full">متصل</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 border border-slate-200 rounded-xl">
+                            <div class="flex items-center space-x-4 space-x-reverse">
+                                <div
+                                    class="w-10 h-10 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">ReCit OCR Engine (التعرف الضوئي)</h4>
+                                    <p class="text-xs text-slate-400">تحويل الإيصالات الورقية إلى بيانات رقمية</p>
+                                </div>
+                            </div>
+                            <button onclick="alert('تم تحديث إعدادات OCR')"
+                                class="bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-slate-800 transition">إدارة
+                                الإعدادات</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- JAVASCRIPT LOGIC & ROUTING -->
+    <script>
+        // Page Router function
+        function switchPage(pageId, btnElement) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+            // Show target page
+            document.getElementById('page-' + pageId).classList.add('active');
+
+            // Update sidebar buttons styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "w-full flex items-center space-x-3 space-x-reverse px-4 py-3 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition nav-btn";
+            });
+            if (btnElement) {
+                btnElement.className = "w-full flex items-center space-x-3 space-x-reverse px-4 py-3 bg-indigo-600 text-white rounded-xl font-medium transition nav-btn";
+            }
+
+            // Update Header Titles
+            const titles = {
+                'overview': ['نظرة عامة', 'تحليلات السلوك والرؤى التنبؤية في الوقت الفعلي'],
+                'transactions': ['سجل المعاملات', 'عرض ومراقبة كافة الإيصالات الرقمية وطلبات المدفوعات'],
+                'segments': ['شرائح العملاء', 'تحليل وفلترة قواعد بيانات المستهلكين بناءً على نموذج RFM'],
+                'recommendations': ['توصيات الذكاء الاصطناعي', 'قرارات تسويقية ذكية مبنية على أنماط الشراء الفعلية'],
+                'integrations': ['ربط أنظمة النقاط (POS)', 'إدارة الربط التقني ومحركات قراءة الفواتير الورقية']
+            };
+            document.getElementById('pageTitle').innerText = titles[pageId][0];
+            document.getElementById('pageSubtitle').innerText = titles[pageId][1];
+        }
+
+        // Initialize Chart.js for Overview
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['8 صباحاً', '10 صباحاً', '12 ظهراً', '2 عصراً', '4 عصراً', '6 مساءً', '8 مساءً', '10 مساءً'],
+                datasets: [{
+                    label: 'الإيرادات بالساعة (<span class="sar">$</span>)',
+                    data: [1200, 3400, 7800, 6200, 8900, 9400, 6100, 3200],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {legend: {display: false}},
+                scales: {
+                    y: {grid: {color: '#f1f5f9'}, ticks: {color: '#64748b', font: {size: 11, family: 'Cairo'}}},
+                    x: {grid: {display: false}, ticks: {color: '#64748b', font: {size: 11, family: 'Cairo'}}}
+                }
+            }
+        });
+
+        // Time range filter simulation
+        function updateDashboardData() {
+            const range = document.getElementById('timeRange').value;
+            const gmv = document.getElementById('kpiGmv');
+            const aov = document.getElementById('kpiAov');
+            const penetration = document.getElementById('kpiPenetration');
+            const churn = document.getElementById('kpiChurn');
+
+            if (range === 'today') {
+                gmv.innerText = '6,420 <span class="sar">$</span>';
+                aov.innerText = '31.20 <span class="sar">$</span>';
+                penetration.innerText = '40.2%';
+                churn.innerText = '12';
+                salesChart.data.datasets[0].data = [800, 1500, 2200, 1800, 2400, 2100, 1100, 400];
+            } else if (range === 'week') {
+                gmv.innerText = '48,250 <span class="sar">$</span>';
+                aov.innerText = '34.50 <span class="sar">$</span>';
+                penetration.innerText = '42.8%';
+                churn.innerText = '128';
+                salesChart.data.datasets[0].data = [1200, 3400, 7800, 6200, 8900, 9400, 6100, 3200];
+            } else if (range === 'month') {
+                gmv.innerText = '194,100 <span class="sar">$</span>';
+                aov.innerText = '36.10 <span class="sar">$</span>';
+                penetration.innerText = '45.4%';
+                churn.innerText = '412';
+                salesChart.data.datasets[0].data = [4500, 12000, 24000, 21000, 31000, 34000, 22000, 11000];
+            }
+            salesChart.update();
+        }
+    </script>
+</body>
+
+</html>
